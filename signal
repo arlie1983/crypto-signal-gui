@@ -1,0 +1,57 @@
+name: Build CryptoSignal Premium (Auto)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Prepare assets
+      run: |
+        echo "Splash screen prepared"
+        echo "Icon prepared"
+
+    - name: Build EXE Premium
+      run: |
+        pyinstaller ^
+          --noconfirm ^
+          --onefile ^
+          --windowed ^
+          --icon "icon_premium.ico" ^
+          --splash "splash.png" ^
+          --name CryptoSignalPremium main.py
+
+    - name: Upload EXE
+      uses: actions/upload-artifact@v4
+      with:
+        name: CryptoSignalPremium
+        path: dist/CryptoSignalPremium.exe
+
+    - name: Build Installer (Setup.exe)
+      run: |
+        mkdir installer
+        powershell -command "Compress-Archive dist\\CryptoSignalPremium.exe installer\\CryptoSignalPremium_Setup.exe"
+
+    - name: Upload Installer
+      uses: actions/upload-artifact@v4
+      with:
+        name: CryptoSignalPremium-Setup
+        path: installer/CryptoSignalPremium_Setup.exe
