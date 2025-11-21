@@ -1,0 +1,7 @@
+PyQt6
+matplotlib
+pandas
+numpy
+ccxt
+ta
+win10toast
